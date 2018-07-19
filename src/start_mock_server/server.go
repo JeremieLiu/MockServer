@@ -120,9 +120,11 @@ func RespStatisConfigQuery(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
+	//输出请求
 	log.Println("request:")
 	log.Println(r)
 
+	//输出参数
 	r.ParseForm()
 	devType := r.FormValue("devtype")
 	net := r.FormValue("net")
@@ -137,7 +139,6 @@ func RespStatisConfigQuery(w http.ResponseWriter, r *http.Request) {
 func LocalStatisticsReport(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
-
 	body, _ := ioutil.ReadAll(r.Body)
 
 	b := bytes.NewReader(body)
@@ -149,14 +150,17 @@ func LocalStatisticsReport(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(STATUS_POST_REQUEST_OK) //返回状态码202
 
+	//输出解压后的数据
 	fmt.Print("fmt:rz:")
 	fmt.Println(rz)
 	fmt.Print("log:rz:")
 	log.Println(rz)
 
+	//输出请求
 	log.Println("request:")
 	log.Println(r)
 
+	//输出参数
 	r.ParseForm()
 	devId := r.FormValue("devId")
 	log.Printf("参数：devId:%s",devId)
@@ -176,14 +180,17 @@ func LocalStatisicsacquisition(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(STATUS_POST_REQUEST_OK)	//返回状态码202
 	w.Write([]byte(global_oneKRandomString))
 
+	//输出请求
 	log.Println("request:")
 	log.Println(r)
 
+	//输出本地生成的数据
 	log.Println("Random string :")
 	log.Println(global_oneKRandomString)
 
 	r.ParseForm()
 
+	//输出参数
 	devType := r.FormValue("devType")
 	net := r.FormValue("net")
 	devId := r.FormValue("devId")
@@ -195,14 +202,19 @@ func LocalStatisicsacquisition(w http.ResponseWriter, r *http.Request) {
  * 4、代报结果提交
  */
 func SubmissionResults(w http.ResponseWriter, r *http.Request){
-	r.ParseForm()
+
 	body, _ := ioutil.ReadAll(r.Body)
 	w.Write(body)
 	w.WriteHeader(STATUS_POST_REQUEST_OK)	//返回状态码202
 
+	r.ParseForm()
 	head :=r.FormValue("head")
+
+	//输出请求
 	log.Println("request:")
 	log.Println(r)
+
+	//输出参数
 	log.Printf("log:参数：head:%s ",head)
 	fmt.Sprintf("fmt:参数：head:%s ",head)
 }
@@ -218,12 +230,13 @@ func CloudStatisticsInterface(w http.ResponseWriter, r *http.Request){
 	w.Write([]byte(body))					//显示响应的数据
 	w.WriteHeader(STATUS_POST_REQUEST_OK)	//返回状态码202
 
+	//输出请求
 	log.Println("request:")
 	log.Println(r)
+
+	//输出用户发送数据
 	log.Println("respone body:")
 	log.Println(body)
-
-
 }
 
 
