@@ -42,20 +42,30 @@ type LocalStatisticsReportMSG struct {
 	Rear      string `json:"Rear"`
 }
 
+//定义1024长度的随机字符串
+var global_oneKRandomString string
+
 func main() {
-	//fmt.Println("test main begin...")
+	fmt.Println("test main begin...")
 
 	//url指定绑定：统计配置查询
-	//http.HandleFunc("/v3/api/jgstatisc/collect.cfg",httpsRespStatisConfigQuery)
+	http.HandleFunc("/v3/api/jgstatisc/collect.cfg",RespStatisConfigQuery)
 
 	//url指定绑定：本地统计上报
 	http.HandleFunc("/v3/api/jgstatisc/collect.do", LocalStatisticsReport)
 
 	//url指定绑定：本地统计获取
-	//http.HandleFunc("/v3/api/jgstatisc/collect.do",LocalStatisticsReport)
+	http.HandleFunc("/v3/api/jgstatisc/collect.get",LocalStatisicsacquisition)
+
+	//url指定绑定：代报结果提交
+	http.HandleFunc("/v3/api/jgstatisc/collect.del",SubmissionResults)
+
+	//url指定绑定：云服务接口
+	http.HandleFunc("/v3/version.new",CloudStatisticsInterface)
 
 	err := http.ListenAndServe(":7070", nil)
 	if err != nil {
+		fmt.Println("error")
 		log.Print(err)
 	}
 }
@@ -75,10 +85,10 @@ func getCommitResult() bool {
 }
 
 /*
- * 统计配置查询
+ * 1、统计配置查询
  */
-func httpsRespStatisConfigQuery(w http.ResponseWriter, r *http.Request) {
-	//fmt.Println("test httpsRespStatisConfigQuery begin...")
+func RespStatisConfigQuery(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("test httpsRespStatisConfigQuery begin...")
 	//测试路径请求发送路径
 	//fmt.Println(r.RequestURI)
 
@@ -122,7 +132,7 @@ func httpsRespStatisConfigQuery(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
- * 本地统计上报
+ * 2、本地统计上报
  */
 func LocalStatisticsReport(w http.ResponseWriter, r *http.Request) {
 
@@ -154,16 +164,68 @@ func LocalStatisticsReport(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
- * 本地统计获取
+ * 3、本地统计获取
  */
 func LocalStatisicsacquisition(w http.ResponseWriter, r *http.Request) {
 
-	oneKRandomString := GetOneKRandomString()
+	//测试
+	fmt.Println("start LocalStatisicsacquisition")
 
-	w.WriteHeader(STATUS_GET_RESPONSE_OK)
-	w.Write([]byte(oneKRandomString))
+	global_oneKRandomString = GetOneKRandomString()
+
+	w.WriteHeader(STATUS_POST_REQUEST_OK)	//返回状态码202
+	w.Write([]byte(global_oneKRandomString))
+
+	log.Println("request:")
+	log.Println(r)
+
+	log.Println("Random string :")
+	log.Println(global_oneKRandomString)
+
+	r.ParseForm()
+
+	devType := r.FormValue("devType")
+	net := r.FormValue("net")
+	devId := r.FormValue("devId")
+	log.Printf("log:参数：devType:%s net:%s devId:%s",devType, net, devId)
+	fmt.Sprintf("fmt:参数：devType:%s net:%s devId:%s",devType, net, devId)
+}
+
+/*
+ * 4、代报结果提交
+ */
+func SubmissionResults(w http.ResponseWriter, r *http.Request){
+	r.ParseForm()
+	body, _ := ioutil.ReadAll(r.Body)
+	w.Write(body)
+	w.WriteHeader(STATUS_POST_REQUEST_OK)	//返回状态码202
+
+	head :=r.FormValue("head")
+	log.Println("request:")
+	log.Println(r)
+	log.Printf("log:参数：head:%s ",head)
+	fmt.Sprintf("fmt:参数：head:%s ",head)
+}
+
+/*
+ * 5、有度云统计接口
+ */
+func CloudStatisticsInterface(w http.ResponseWriter, r *http.Request){
+
+	r.ParseForm()
+	body, _ := ioutil.ReadAll(r.Body)
+
+	w.Write([]byte(body))					//显示响应的数据
+	w.WriteHeader(STATUS_POST_REQUEST_OK)	//返回状态码202
+
+	log.Println("request:")
+	log.Println(r)
+	log.Println("respone body:")
+	log.Println(body)
+
 
 }
+
 
 /*
  * 随机生成1个字符
@@ -194,7 +256,3 @@ func GetOneKRandomString() string {
 
 	return res
 }
-
-/*
- *
- */
